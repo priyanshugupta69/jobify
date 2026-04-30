@@ -1,0 +1,18 @@
+[Unit]
+Description=job-pipeline Next.js frontend (next dev on 127.0.0.1:3000)
+After=network-online.target job-pipeline.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/job_pipeline/frontend
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3000
+Restart=on-failure
+RestartSec=10
+KillSignal=SIGINT
+TimeoutStopSec=30
+Environment=NODE_ENV=development
+Environment=PATH=/usr/bin:/usr/local/bin
+
+[Install]
+WantedBy=default.target

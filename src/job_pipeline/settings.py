@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     host: str = Field(default="127.0.0.1", alias="HOST")
     port: int = Field(default=8000, alias="PORT")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
+    cors_origins: list[str] = Field(
+        default=["http://localhost:3000"], alias="CORS_ORIGINS"
+    )
 
     # Scheduler
     scheduler_enabled: bool = Field(default=True, alias="SCHEDULER_ENABLED")
