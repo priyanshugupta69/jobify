@@ -1,0 +1,56 @@
+"""FastAPI app entry point. Lifespan starts/stops the APScheduler."""
+from __future__ import annotations
+
+import logging
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+
+from job_pipeline.logging_config import configure_logging
+from job_pipeline.settings import settings
+
+log = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    configure_logging()
+    from job_pipeline.patches import apply_patches
+    apply_patches()
+    log.info("Starting job-pipeline app")
+
+    scheduler = None
+    if settings.scheduler_enabled:
+        from job_pipeline.scheduler import build_scheduler
+
+        scheduler = build_scheduler()
+        scheduler.start()
+        app.state.scheduler = scheduler
+        log.info("Scheduler started with %d jobs", len(scheduler.get_jobs()))
+    else:
+        app.state.scheduler = None
+        log.info("Scheduler disabled (SCHEDULER_ENABLED=false)")
+
+    try:
+        yield
+    finally:
+        if scheduler is not None:
+            scheduler.shutdown(wait=False)
+            log.info("Scheduler stopped")
+
+
+app = FastAPI(title="job-pipeline", version="0.1.0", lifespan=lifespan)
+
+
+@app.get("/health")
+def health() -> dict:
+    return {"status": "ok"}
+
+
+# Routers are registered after import to avoid circulars during dev.
+from job_pipeline.routers import jobs, stats, pipeline, scheduler as scheduler_router  # noqa: E402
+
+app.include_router(stats.router)
+app.include_router(jobs.router)
+app.include_router(pipeline.router)
+app.include_router(scheduler_router.router)

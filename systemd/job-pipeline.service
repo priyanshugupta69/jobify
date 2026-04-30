@@ -1,0 +1,21 @@
+[Unit]
+Description=job-pipeline FastAPI service (cron + endpoints)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/projects/job_pipeline
+ExecStart=%h/.local/bin/uv run uvicorn job_pipeline.main:app \
+    --host 127.0.0.1 --port 8000 \
+    --proxy-headers --no-access-log
+Restart=on-failure
+RestartSec=10
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+# Loaded from ~/.applypilot/.env via pydantic-settings — nothing extra needed.
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target
