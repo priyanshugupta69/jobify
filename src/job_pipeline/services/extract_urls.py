@@ -11,16 +11,15 @@ import json
 import logging
 import random
 import sqlite3
-from pathlib import Path
 
 from playwright.async_api import async_playwright
 
 from job_pipeline.db import get_connection
-from job_pipeline.settings import APPLYPILOT_DIR  # noqa: F401  (kept for parity)
+from job_pipeline.settings import APPLYPILOT_DIR
 
 log = logging.getLogger(__name__)
 
-LINKEDIN_SESSION = Path.home() / ".openclaw/workspace/.linkedin_session.json"
+LINKEDIN_SESSION = APPLYPILOT_DIR / ".linkedin_session.json"
 MIN_DELAY = 3
 MAX_DELAY = 6
 MAX_RETRIES = 3

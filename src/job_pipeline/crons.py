@@ -24,13 +24,13 @@ class Schedule:
 
 
 SCHEDULES: list[Schedule] = [
-    # 6 AM IST — full pipeline. Subprocess for crash isolation + 1h kill.
+    # 6 AM IST — full pipeline. Subprocess for crash isolation + 3h kill.
     Schedule(
         id="job-pipeline-6am",
         cron="30 0 * * *",
         cmd=["full"],
         fn=None,
-        timeout=3600,
+        timeout=10800,
     ),
     # Batch-only runs at 9 AM, 12 PM, 3 PM, 6 PM, 9 PM IST.
     # These don't run discover/score/tailor — they package and dispatch
