@@ -67,6 +67,10 @@ class DeleteResult(BaseModel):
     deleted: int
 
 
+class BulkDelete(BaseModel):
+    urls: list[str]
+
+
 class UpdateResult(BaseModel):
     updated: bool
 

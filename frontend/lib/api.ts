@@ -70,6 +70,12 @@ export const deleteLowScore = (threshold: number) =>
 export const deleteSkipped = () =>
   request<DeleteResult>(`/jobs/skipped`, { method: "DELETE" });
 
+export const bulkDeleteJobs = (urls: string[]) =>
+  request<DeleteResult>(`/jobs/bulk-delete`, {
+    method: "POST",
+    body: JSON.stringify({ urls }),
+  });
+
 export const triggerDiscover = (workers = 3) =>
   request<PipelineRunResponse>(`/pipeline/discover?workers=${workers}`, {
     method: "POST",

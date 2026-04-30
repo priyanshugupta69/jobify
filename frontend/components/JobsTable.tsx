@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   applyOne,
+  bulkDeleteJobs,
   deleteJob,
   deleteLowScore,
   deleteSkipped,
@@ -22,6 +23,7 @@ export function JobsTable() {
   const [jobs, setJobs] = useState<Job[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const run = useAction();
 
   const refresh = useCallback(async () => {
@@ -44,6 +46,31 @@ export function JobsTable() {
     refresh();
   }, [refresh]);
 
+  // Reset selection whenever the underlying job list changes (e.g. after refresh,
+  // filter change, or a delete) so we don't keep stale URLs selected.
+  useEffect(() => {
+    setSelected(new Set());
+  }, [jobs]);
+
+  const allSelected = useMemo(
+    () => !!jobs && jobs.length > 0 && jobs.every((j) => selected.has(j.url)),
+    [jobs, selected],
+  );
+
+  const toggleOne = (url: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(url)) next.delete(url);
+      else next.add(url);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (!jobs) return;
+    setSelected(allSelected ? new Set() : new Set(jobs.map((j) => j.url)));
+  };
+
   const onMarkApplied = async (url: string) => {
     await run("Mark applied", () => markApplied(url));
     refresh();
@@ -52,6 +79,15 @@ export function JobsTable() {
   const onDelete = async (url: string) => {
     if (!confirm(`Delete job?\n${url}`)) return;
     await run("Delete job", () => deleteJob(url));
+    refresh();
+  };
+
+  const onDeleteSelected = async () => {
+    const urls = Array.from(selected);
+    if (urls.length === 0) return;
+    if (!confirm(`Delete ${urls.length} selected job${urls.length === 1 ? "" : "s"}?`))
+      return;
+    await run(`Delete ${urls.length} selected`, () => bulkDeleteJobs(urls));
     refresh();
   };
 
@@ -166,6 +202,28 @@ export function JobsTable() {
         </div>
       </div>
 
+      {selected.size > 0 && (
+        <div className="flex items-center justify-between rounded-md border border-blue-300 bg-blue-50 px-3 py-2 text-sm dark:border-blue-900 dark:bg-blue-950">
+          <span className="text-blue-900 dark:text-blue-200">
+            {selected.size} selected
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelected(new Set())}
+              className="rounded border border-zinc-300 bg-white px-2 py-0.5 text-xs hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+            >
+              Clear
+            </button>
+            <button
+              onClick={onDeleteSelected}
+              className="rounded border border-red-300 bg-white px-2 py-0.5 text-xs font-medium text-red-700 hover:bg-red-50"
+            >
+              Delete {selected.size} selected
+            </button>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="rounded border border-red-300 bg-red-50 p-3 text-sm text-red-900">
           {error}
@@ -181,6 +239,14 @@ export function JobsTable() {
           <table className="w-full text-sm">
             <thead className="bg-zinc-50 dark:bg-zinc-900">
               <tr className="text-left text-xs uppercase tracking-wide text-zinc-500">
+                <th className="px-3 py-2 font-medium w-8">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleAll}
+                    aria-label="Select all"
+                  />
+                </th>
                 <th className="px-3 py-2 font-medium">Title</th>
                 <th className="px-3 py-2 font-medium">Site</th>
                 <th className="px-3 py-2 font-medium">Location</th>
@@ -192,6 +258,14 @@ export function JobsTable() {
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {jobs.map((j) => (
                 <tr key={j.url} className="align-top">
+                  <td className="px-3 py-2">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(j.url)}
+                      onChange={() => toggleOne(j.url)}
+                      aria-label={`Select ${j.title ?? j.url}`}
+                    />
+                  </td>
                   <td className="px-3 py-2 max-w-md">
                     <a
                       href={j.url}

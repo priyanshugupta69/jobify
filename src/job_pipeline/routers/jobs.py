@@ -20,6 +20,7 @@ from job_pipeline.db import (
 )
 from job_pipeline.models import (
     ApplicationUrlUpdate,
+    BulkDelete,
     DeleteResult,
     Job,
     NeedsManualUpdate,
@@ -54,6 +55,18 @@ def delete_skipped_endpoint(
     conn: Annotated[sqlite3.Connection, Depends(get_db)],
 ) -> DeleteResult:
     return DeleteResult(deleted=delete_skipped(conn))
+
+
+@router.post("/bulk-delete", response_model=DeleteResult)
+def bulk_delete(
+    body: BulkDelete,
+    conn: Annotated[sqlite3.Connection, Depends(get_db)],
+) -> DeleteResult:
+    deleted = 0
+    for url in body.urls:
+        if delete_by_url(conn, url):
+            deleted += 1
+    return DeleteResult(deleted=deleted)
 
 
 @router.get("/{url:path}", response_model=Job)
