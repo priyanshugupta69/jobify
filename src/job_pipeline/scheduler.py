@@ -36,8 +36,15 @@ def _run_subprocess(schedule_id: str, cmd: list[str], timeout: int) -> None:
             text=True,
         )
         log.info("[%s] subprocess done rc=%d", schedule_id, result.returncode)
-        if result.returncode != 0:
-            log.error("[%s] stderr tail: %s", schedule_id, (result.stderr or "")[-1000:])
+        # Surface child output so silent failures don't look like silent successes.
+        # Truncate to keep journal readable when discover spits out 100s of pages.
+        stdout_tail = (result.stdout or "")[-8000:]
+        stderr_tail = (result.stderr or "")[-4000:]
+        if stdout_tail:
+            log.info("[%s] stdout tail:\n%s", schedule_id, stdout_tail)
+        if stderr_tail:
+            level = log.error if result.returncode != 0 else log.warning
+            level("[%s] stderr tail:\n%s", schedule_id, stderr_tail)
     except subprocess.TimeoutExpired:
         log.error("[%s] killed after %ds timeout", schedule_id, timeout)
     except Exception:

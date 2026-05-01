@@ -1,12 +1,16 @@
 """Application settings loaded from env / ~/.applypilot/.env."""
 from __future__ import annotations
 
+import logging
+import os
+import shutil
 from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 APPLYPILOT_DIR = Path.home() / ".applypilot"
+log = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -45,10 +49,10 @@ class Settings(BaseSettings):
     auto_apply_dry_run: bool = Field(default=True, alias="AUTO_APPLY_DRY_RUN")
     auto_apply_model: str = Field(default="sonnet", alias="AUTO_APPLY_MODEL")
     auto_apply_headless: bool = Field(default=True, alias="AUTO_APPLY_HEADLESS")
-    chrome_path: str = Field(
-        default="/home/ubuntu/.cache/ms-playwright/chromium-1208/chrome-linux64/chrome",
-        alias="CHROME_PATH",
-    )
+    # Empty default — the actual binary is resolved at runtime by
+    # ``resolve_chrome_path()`` so we don't pin a Playwright revision that
+    # silently rots when the playwright pkg version bumps.
+    chrome_path: str = Field(default="", alias="CHROME_PATH")
 
     @property
     def db_path(self) -> Path:
@@ -56,3 +60,34 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def resolve_chrome_path() -> str | None:
+    """Locate a usable Chrome/Chromium binary at runtime.
+
+    Order:
+      1. ``CHROME_PATH`` env var or ``settings.chrome_path`` — only if the
+         file actually exists (so a stale pin from .env auto-falls-through).
+      2. Playwright's bundled chromium — whatever revision the currently
+         installed ``playwright`` package expects. Survives uv resolves that
+         bump the playwright version.
+      3. System Chrome via ``shutil.which`` — for boxes with system Chrome.
+
+    Returns the resolved path, or None if nothing is found.
+    """
+    cand = os.environ.get("CHROME_PATH") or settings.chrome_path
+    if cand and Path(cand).exists():
+        return cand
+    try:
+        from playwright.sync_api import sync_playwright
+
+        with sync_playwright() as p:
+            bundled = p.chromium.executable_path
+            if bundled and Path(bundled).exists():
+                return bundled
+    except Exception as e:
+        log.debug("playwright chromium probe failed: %s", e)
+    for name in ("google-chrome", "chromium", "chromium-browser", "chrome"):
+        if (resolved := shutil.which(name)):
+            return resolved
+    return None

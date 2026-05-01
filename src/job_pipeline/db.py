@@ -11,6 +11,7 @@ import sqlite3
 from collections.abc import Iterator
 from datetime import datetime, timezone
 
+from applypilot.config import DB_PATH
 from applypilot.database import (
     close_connection,
     ensure_columns,
@@ -46,14 +47,21 @@ log = logging.getLogger(__name__)
 
 
 def get_db() -> Iterator[sqlite3.Connection]:
-    """FastAPI dependency: yields a thread-local connection, commits on success."""
-    conn = get_connection()
+    """FastAPI dependency: per-request SQLite connection, thread-safe across
+    anyio's threadpool (commit/rollback can land on a different thread than
+    the one that opened the connection)."""
+    conn = sqlite3.connect(str(DB_PATH), timeout=30, check_same_thread=False)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=10000")
+    conn.row_factory = sqlite3.Row
     try:
         yield conn
         conn.commit()
     except Exception:
         conn.rollback()
         raise
+    finally:
+        conn.close()
 
 
 def _row_to_dict(row: sqlite3.Row | None) -> dict | None:

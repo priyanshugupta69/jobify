@@ -5,7 +5,7 @@ from job_pipeline.crons import SCHEDULES, by_id
 from job_pipeline.scheduler import build_scheduler
 
 EXPECTED = {
-    "job-pipeline-6am":   ("30 0 * * *",  "subprocess", 3600),
+    "job-pipeline-6am":   ("30 0 * * *",  "subprocess", 10800),
     "job-batch-9am-ist":  ("30 3 * * *",  "direct",     None),
     "job-batch-12pm-ist": ("30 6 * * *",  "direct",     None),
     "job-batch-3pm-ist":  ("30 9 * * *",  "direct",     None),

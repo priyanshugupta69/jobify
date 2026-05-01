@@ -26,7 +26,7 @@ import time
 from pathlib import Path
 
 from job_pipeline.db import get_connection, mark_needs_manual
-from job_pipeline.settings import settings
+from job_pipeline.settings import resolve_chrome_path, settings
 
 log = logging.getLogger(__name__)
 
@@ -45,17 +45,22 @@ def _ensure_dependencies() -> None:
         raise MissingDependency("`claude` CLI not found in PATH (install Claude Code)")
     if not shutil.which("npx"):
         raise MissingDependency("`npx` not found in PATH (install Node)")
-    chrome = settings.chrome_path
-    if not chrome or not Path(chrome).exists():
-        raise MissingDependency(f"Chrome binary not found at {chrome!r}")
+    if not resolve_chrome_path():
+        raise MissingDependency(
+            "Chrome/Chromium binary not found. Run "
+            "'uv run playwright install chromium chromium-headless-shell' "
+            "or set CHROME_PATH in ~/.applypilot/.env."
+        )
     if not os.environ.get("ANTHROPIC_API_KEY"):
         raise MissingDependency("ANTHROPIC_API_KEY not set in env")
 
 
 def _ensure_chrome_path_exposed() -> None:
     """Make sure applypilot's get_chrome_path() finds the binary we configured."""
-    if "CHROME_PATH" not in os.environ and settings.chrome_path:
-        os.environ["CHROME_PATH"] = settings.chrome_path
+    if "CHROME_PATH" not in os.environ:
+        resolved = resolve_chrome_path()
+        if resolved:
+            os.environ["CHROME_PATH"] = resolved
 
 
 def apply_one(url: str, port: int = 9222, worker_id: int = 0) -> dict:

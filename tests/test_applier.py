@@ -46,14 +46,20 @@ def test_missing_dependency_raises(monkeypatch):
         applier_mod._ensure_dependencies()
 
 
-def test_chrome_path_setting_propagated_to_env(monkeypatch):
-    """_ensure_chrome_path_exposed sets CHROME_PATH so applypilot's get_chrome_path() finds it."""
+def test_chrome_path_setting_propagated_to_env(monkeypatch, tmp_path):
+    """_ensure_chrome_path_exposed sets CHROME_PATH so applypilot's get_chrome_path() finds it.
+
+    The resolver only returns a path that actually exists on disk, so we touch
+    a real (empty) file in a tmpdir and point CHROME_PATH at it.
+    """
+    fake_chrome = tmp_path / "fake-chrome"
+    fake_chrome.touch()
     _set_settings(
         monkeypatch,
         AUTO_APPLY_ENABLED="true",
-        CHROME_PATH="/tmp/fake-chrome",
+        CHROME_PATH=str(fake_chrome),
     )
     monkeypatch.delenv("CHROME_PATH", raising=False)
     applier_mod._ensure_chrome_path_exposed()
     import os
-    assert os.environ.get("CHROME_PATH") == "/tmp/fake-chrome"
+    assert os.environ.get("CHROME_PATH") == str(fake_chrome)

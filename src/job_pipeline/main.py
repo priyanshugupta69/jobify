@@ -20,6 +20,24 @@ async def lifespan(app: FastAPI):
     apply_patches()
     log.info("Starting job-pipeline app")
 
+    # Boot-time Chrome self-check — surfaces missing binary at startup
+    # instead of mid-cron-run. Run in a thread because resolve_chrome_path
+    # uses sync_playwright(), which can't share an event loop with us.
+    # Informational only; never raises.
+    import asyncio
+
+    from job_pipeline.settings import resolve_chrome_path
+    chrome = await asyncio.to_thread(resolve_chrome_path)
+    if chrome:
+        log.info("Chrome resolved at: %s", chrome)
+    else:
+        log.warning(
+            "No Chrome/Chromium binary found. Run "
+            "'uv run playwright install chromium chromium-headless-shell' "
+            "or set CHROME_PATH in ~/.applypilot/.env. "
+            "Auto-apply / smart_extract / enrich will fail until this is fixed."
+        )
+
     scheduler = None
     if settings.scheduler_enabled:
         from job_pipeline.scheduler import build_scheduler
