@@ -23,6 +23,9 @@ interface ButtonSpec {
   build: (run: ReturnType<typeof useAction>) => PendingAction;
 }
 
+// Button order matches the actual pipeline flow:
+// Discover → Cleanup → Score → Post-score cleanup → Extract URLs →
+// Tailor → Batch (preview) → Full pipeline → Send daily report
 const BUTTONS: ButtonSpec[] = [
   {
     key: "discover",
@@ -39,6 +42,20 @@ const BUTTONS: ButtonSpec[] = [
     }),
   },
   {
+    key: "cleanup",
+    label: "Cleanup",
+    build: (run) => ({
+      title: "Cleanup",
+      description:
+        "Delete jobs that are clearly invalid (broken URLs, scrape errors, blank descriptions). Idempotent and safe.",
+      warning: "Deletes rows.",
+      emphasis: "danger",
+      onConfirm: async () => {
+        await run("Cleanup", () => triggerCleanup());
+      },
+    }),
+  },
+  {
     key: "score",
     label: "Score",
     build: (run) => ({
@@ -48,6 +65,34 @@ const BUTTONS: ButtonSpec[] = [
       warning: "Calls the Gemini API (uses GEMINI_API_KEY credits).",
       onConfirm: async () => {
         await run("Score", () => triggerScore());
+      },
+    }),
+  },
+  {
+    key: "post-score-cleanup",
+    label: "Post-score cleanup",
+    build: (run) => ({
+      title: "Post-score cleanup",
+      description:
+        "Delete scored jobs below the auto-cull threshold and jobs where scoring permanently failed.",
+      warning: "Deletes rows.",
+      emphasis: "danger",
+      onConfirm: async () => {
+        await run("Post-score cleanup", () => triggerPostScoreCleanup());
+      },
+    }),
+  },
+  {
+    key: "extract-urls",
+    label: "Extract URLs",
+    build: (run) => ({
+      title: "Extract URLs",
+      description:
+        "Open each LinkedIn posting in headless Chrome and pull out the external company-ATS apply URL. Slow — Playwright per job.",
+      warning: "Launches a headless browser; uses memory.",
+      params: [{ key: "limit", label: "Limit", type: "number", default: 50, min: 1, max: 500 }],
+      onConfirm: async (v) => {
+        await run("Extract URLs", () => triggerExtractUrls({ limit: v.limit }));
       },
     }),
   },
@@ -71,16 +116,14 @@ const BUTTONS: ButtonSpec[] = [
     }),
   },
   {
-    key: "extract-urls",
-    label: "Extract URLs",
+    key: "batch",
+    label: "Batch (preview)",
     build: (run) => ({
-      title: "Extract URLs",
+      title: "Batch (preview)",
       description:
-        "Open each LinkedIn posting in headless Chrome and pull out the external company-ATS apply URL. Slow — Playwright per job.",
-      warning: "Launches a headless browser; uses memory.",
-      params: [{ key: "limit", label: "Limit", type: "number", default: 50, min: 1, max: 500 }],
-      onConfirm: async (v) => {
-        await run("Extract URLs", () => triggerExtractUrls({ limit: v.limit }));
+        "Pick top-N high-scoring jobs ready for human review and format as a Telegram message — but DOES NOT send it. Safe preview.",
+      onConfirm: async () => {
+        await run("Batch preview", () => triggerBatch({ skip_send: true }));
       },
     }),
   },
@@ -96,46 +139,6 @@ const BUTTONS: ButtonSpec[] = [
       emphasis: "primary",
       onConfirm: async () => {
         await run("Full pipeline", () => triggerFull());
-      },
-    }),
-  },
-  {
-    key: "cleanup",
-    label: "Cleanup",
-    build: (run) => ({
-      title: "Cleanup",
-      description:
-        "Delete jobs that are clearly invalid (broken URLs, scrape errors, blank descriptions). Idempotent and safe.",
-      warning: "Deletes rows.",
-      emphasis: "danger",
-      onConfirm: async () => {
-        await run("Cleanup", () => triggerCleanup());
-      },
-    }),
-  },
-  {
-    key: "post-score-cleanup",
-    label: "Post-score cleanup",
-    build: (run) => ({
-      title: "Post-score cleanup",
-      description:
-        "Delete scored jobs below the auto-cull threshold and jobs where scoring permanently failed.",
-      warning: "Deletes rows.",
-      emphasis: "danger",
-      onConfirm: async () => {
-        await run("Post-score cleanup", () => triggerPostScoreCleanup());
-      },
-    }),
-  },
-  {
-    key: "batch",
-    label: "Batch (preview)",
-    build: (run) => ({
-      title: "Batch (preview)",
-      description:
-        "Pick top-N high-scoring jobs ready for human review and format as a Telegram message — but DOES NOT send it. Safe preview.",
-      onConfirm: async () => {
-        await run("Batch preview", () => triggerBatch({ skip_send: true }));
       },
     }),
   },

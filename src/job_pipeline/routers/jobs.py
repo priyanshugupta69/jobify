@@ -38,8 +38,17 @@ def list_jobs(
     stage: PipelineStage = Query("scored"),
     min_score: int | None = Query(None, ge=1, le=10),
     limit: int = Query(100, ge=1, le=1000),
+    site: str | None = Query(None),
 ) -> list[dict]:
-    return get_jobs_by_stage(conn, stage=stage, min_score=min_score, limit=limit)
+    if site is None:
+        return get_jobs_by_stage(conn, stage=stage, min_score=min_score, limit=limit)
+
+    # Pull a generous superset, filter client-side, then truncate. Keeps the
+    # applypilot helper as the single source of truth for stage semantics.
+    rows = get_jobs_by_stage(conn, stage=stage, min_score=min_score, limit=0)
+    site_l = site.lower()
+    filtered = [r for r in rows if (r.get("site") or "").lower() == site_l]
+    return filtered[:limit]
 
 
 @router.delete("/low-score", response_model=DeleteResult)

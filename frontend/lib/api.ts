@@ -36,14 +36,17 @@ export interface ListJobsParams {
   stage: PipelineStage;
   minScore?: number | null;
   limit?: number;
+  site?: string | null;
 }
 export function listJobs({
   stage,
   minScore,
   limit = 100,
+  site,
 }: ListJobsParams): Promise<Job[]> {
   const qs = new URLSearchParams({ stage, limit: String(limit) });
   if (minScore != null) qs.set("min_score", String(minScore));
+  if (site) qs.set("site", site);
   return request<Job[]>(`/jobs?${qs.toString()}`);
 }
 

@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { listSchedulerJobs, runScheduleNow } from "@/lib/api";
+import { listSchedulerJobs } from "@/lib/api";
 import type { SchedulerJob } from "@/lib/types";
-import { useAction } from "./Toast";
 
 function formatNextRun(iso: string | null): string {
   if (!iso) return "—";
@@ -17,7 +16,6 @@ export function SchedulerPanel() {
   const [jobs, setJobs] = useState<SchedulerJob[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const run = useAction();
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -69,7 +67,6 @@ export function SchedulerPanel() {
                 <th className="px-3 py-2 font-medium">Cron</th>
                 <th className="px-3 py-2 font-medium">Mode</th>
                 <th className="px-3 py-2 font-medium">Next run</th>
-                <th className="px-3 py-2 font-medium"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
@@ -80,17 +77,6 @@ export function SchedulerPanel() {
                   <td className="px-3 py-2 text-xs">{j.mode}</td>
                   <td className="px-3 py-2 text-xs">
                     {formatNextRun(j.next_run)}
-                  </td>
-                  <td className="px-3 py-2 text-right">
-                    <button
-                      className="rounded border border-zinc-300 bg-white px-2 py-0.5 text-xs hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
-                      onClick={async () => {
-                        await run(`Run ${j.id}`, () => runScheduleNow(j.id));
-                        refresh();
-                      }}
-                    >
-                      Run now
-                    </button>
                   </td>
                 </tr>
               ))}

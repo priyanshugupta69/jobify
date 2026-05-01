@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   applyOne,
@@ -13,7 +13,32 @@ import {
   updateApplicationUrl,
 } from "@/lib/api";
 import { PIPELINE_STAGES, type Job, type PipelineStage } from "@/lib/types";
+import { useFilters } from "./FilterContext";
 import { useAction } from "./Toast";
+
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleString();
+}
+
+function YesNo({ value }: { value: unknown }) {
+  return value ? (
+    <span className="text-green-700 dark:text-green-400">✓</span>
+  ) : (
+    <span className="text-zinc-400">—</span>
+  );
+}
+
+function useDebounced<T>(value: T, ms = 300): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), ms);
+    return () => clearTimeout(id);
+  }, [value, ms]);
+  return debounced;
+}
 
 export function JobsTable() {
   const [stage, setStage] = useState<PipelineStage>("scored");
@@ -24,15 +49,21 @@ export function JobsTable() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const { site, setSite } = useFilters();
   const run = useAction();
+
+  // Debounce text inputs so typing "10" doesn't fire two requests.
+  const debouncedMinScore = useDebounced(minScore);
+  const debouncedLimit = useDebounced(limit);
 
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const ms = minScore ? Number(minScore) : null;
-      const lim = limit ? Number(limit) : 100;
+      const ms = debouncedMinScore ? Number(debouncedMinScore) : null;
+      const lim = debouncedLimit ? Number(debouncedLimit) : 100;
       setJobs(
-        await listJobs({ stage, minScore: ms, limit: lim }),
+        await listJobs({ stage, minScore: ms, limit: lim, site }),
       );
       setError(null);
     } catch (e) {
@@ -40,16 +71,16 @@ export function JobsTable() {
     } finally {
       setLoading(false);
     }
-  }, [stage, minScore, limit]);
+  }, [stage, debouncedMinScore, debouncedLimit, site]);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
 
-  // Reset selection whenever the underlying job list changes (e.g. after refresh,
-  // filter change, or a delete) so we don't keep stale URLs selected.
+  // Reset selection / expansion whenever the underlying job list changes.
   useEffect(() => {
     setSelected(new Set());
+    setExpanded(new Set());
   }, [jobs]);
 
   const allSelected = useMemo(
@@ -69,6 +100,15 @@ export function JobsTable() {
   const toggleAll = () => {
     if (!jobs) return;
     setSelected(allSelected ? new Set() : new Set(jobs.map((j) => j.url)));
+  };
+
+  const toggleExpand = (url: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(url)) next.delete(url);
+      else next.add(url);
+      return next;
+    });
   };
 
   const onMarkApplied = async (url: string) => {
@@ -127,7 +167,12 @@ export function JobsTable() {
 
   return (
     <section className="space-y-3">
-      <h2 className="text-lg font-semibold">Jobs</h2>
+      <div className="flex items-baseline justify-between">
+        <h2 className="text-lg font-semibold">Jobs</h2>
+        {loading && (
+          <span className="text-xs text-zinc-500">loading…</span>
+        )}
+      </div>
 
       <div className="flex flex-wrap items-end gap-3 text-sm">
         <label className="flex flex-col">
@@ -167,13 +212,18 @@ export function JobsTable() {
             className="w-24 rounded border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900"
           />
         </label>
-        <button
-          onClick={refresh}
-          disabled={loading}
-          className="rounded border border-zinc-300 bg-white px-3 py-1 hover:bg-zinc-50 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
-        >
-          {loading ? "loading…" : "Apply filters"}
-        </button>
+        {site && (
+          <div className="flex flex-col">
+            <span className="text-xs text-zinc-500">Site</span>
+            <button
+              onClick={() => setSite(null)}
+              className="flex items-center gap-1 rounded border border-blue-400 bg-blue-50 px-2 py-1 text-blue-900 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
+              title="Clear site filter"
+            >
+              {site} <span className="text-xs">×</span>
+            </button>
+          </div>
+        )}
 
         <div className="ml-auto flex items-end gap-2 text-xs">
           <label className="flex flex-col">
@@ -247,77 +297,205 @@ export function JobsTable() {
                     aria-label="Select all"
                   />
                 </th>
+                <th className="px-2 py-2 font-medium w-6"></th>
                 <th className="px-3 py-2 font-medium">Title</th>
                 <th className="px-3 py-2 font-medium">Site</th>
                 <th className="px-3 py-2 font-medium">Location</th>
+                <th className="px-3 py-2 font-medium">Salary</th>
                 <th className="px-3 py-2 font-medium">Score</th>
                 <th className="px-3 py-2 font-medium">Status</th>
+                <th className="px-3 py-2 font-medium" title="Tailored resume on disk">Resume</th>
+                <th className="px-3 py-2 font-medium" title="External application URL extracted">App URL</th>
+                <th className="px-3 py-2 font-medium">Scored at</th>
                 <th className="px-3 py-2 font-medium"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-              {jobs.map((j) => (
-                <tr key={j.url} className="align-top">
-                  <td className="px-3 py-2">
-                    <input
-                      type="checkbox"
-                      checked={selected.has(j.url)}
-                      onChange={() => toggleOne(j.url)}
-                      aria-label={`Select ${j.title ?? j.url}`}
-                    />
-                  </td>
-                  <td className="px-3 py-2 max-w-md">
-                    <a
-                      href={j.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-600 hover:underline break-words"
-                    >
-                      {j.title ?? j.url}
-                    </a>
-                  </td>
-                  <td className="px-3 py-2 text-xs">{j.site ?? "—"}</td>
-                  <td className="px-3 py-2 text-xs">{j.location ?? "—"}</td>
-                  <td className="px-3 py-2 text-xs tabular-nums">
-                    {j.fit_score ?? "—"}
-                  </td>
-                  <td className="px-3 py-2 text-xs">
-                    {j.apply_status ?? "—"}
-                  </td>
-                  <td className="px-3 py-2">
-                    <div className="flex flex-wrap justify-end gap-1 text-xs">
-                      <button
-                        onClick={() => onEditAppUrl(j)}
-                        className="rounded border border-zinc-300 bg-white px-2 py-0.5 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
-                      >
-                        Edit URL
-                      </button>
-                      <button
-                        onClick={() => onApplyOne(j.url)}
-                        className="rounded border border-zinc-300 bg-white px-2 py-0.5 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
-                      >
-                        Apply
-                      </button>
-                      <button
-                        onClick={() => onMarkApplied(j.url)}
-                        className="rounded border border-green-300 bg-white px-2 py-0.5 text-green-700 hover:bg-green-50"
-                      >
-                        Mark applied
-                      </button>
-                      <button
-                        onClick={() => onDelete(j.url)}
-                        className="rounded border border-red-300 bg-white px-2 py-0.5 text-red-700 hover:bg-red-50"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {jobs.map((j) => {
+                const isExpanded = expanded.has(j.url);
+                return (
+                  <Fragment key={j.url}>
+                    <tr className="align-top">
+                      <td className="px-3 py-2">
+                        <input
+                          type="checkbox"
+                          checked={selected.has(j.url)}
+                          onChange={() => toggleOne(j.url)}
+                          aria-label={`Select ${j.title ?? j.url}`}
+                        />
+                      </td>
+                      <td className="px-2 py-2">
+                        <button
+                          onClick={() => toggleExpand(j.url)}
+                          aria-label={isExpanded ? "Collapse" : "Expand"}
+                          className="rounded px-1 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                        >
+                          {isExpanded ? "▾" : "▸"}
+                        </button>
+                      </td>
+                      <td className="px-3 py-2 max-w-md">
+                        <a
+                          href={j.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-blue-600 hover:underline break-words"
+                        >
+                          {j.title ?? j.url}
+                        </a>
+                      </td>
+                      <td className="px-3 py-2 text-xs">
+                        {j.site ? (
+                          <button
+                            onClick={() => setSite(j.site!)}
+                            className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                            title={`Filter by ${j.site}`}
+                          >
+                            {j.site}
+                          </button>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-xs">{j.location ?? "—"}</td>
+                      <td className="px-3 py-2 text-xs">{j.salary ?? "—"}</td>
+                      <td className="px-3 py-2 text-xs tabular-nums">
+                        {j.fit_score ?? "—"}
+                      </td>
+                      <td className="px-3 py-2 text-xs">
+                        {j.apply_status ?? "—"}
+                      </td>
+                      <td className="px-3 py-2 text-xs"><YesNo value={j.tailored_resume_path} /></td>
+                      <td className="px-3 py-2 text-xs"><YesNo value={j.application_url} /></td>
+                      <td className="px-3 py-2 text-xs whitespace-nowrap">{formatDate(j.scored_at)}</td>
+                      <td className="px-3 py-2">
+                        <div className="flex flex-wrap justify-end gap-1 text-xs">
+                          <button
+                            onClick={() => onEditAppUrl(j)}
+                            className="rounded border border-zinc-300 bg-white px-2 py-0.5 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                          >
+                            Edit URL
+                          </button>
+                          <button
+                            onClick={() => onApplyOne(j.url)}
+                            className="rounded border border-zinc-300 bg-white px-2 py-0.5 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                          >
+                            Apply
+                          </button>
+                          <button
+                            onClick={() => onMarkApplied(j.url)}
+                            className="rounded border border-green-300 bg-white px-2 py-0.5 text-green-700 hover:bg-green-50"
+                          >
+                            Mark applied
+                          </button>
+                          <button
+                            onClick={() => onDelete(j.url)}
+                            className="rounded border border-red-300 bg-white px-2 py-0.5 text-red-700 hover:bg-red-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr className="bg-zinc-50/50 dark:bg-zinc-900/40">
+                        <td colSpan={12} className="px-6 py-4">
+                          <JobDetails job={j} />
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
       )}
     </section>
+  );
+}
+
+function JobDetails({ job }: { job: Job }) {
+  const description = job.full_description || job.description || "";
+  return (
+    <div className="grid grid-cols-1 gap-4 text-xs md:grid-cols-3">
+      <div className="md:col-span-2 space-y-3">
+        <Field label="Description">
+          {description ? (
+            <pre className="whitespace-pre-wrap break-words font-sans text-xs text-zinc-700 dark:text-zinc-300 max-h-96 overflow-y-auto">
+              {description}
+            </pre>
+          ) : (
+            <span className="text-zinc-400">—</span>
+          )}
+        </Field>
+        {job.score_reasoning && (
+          <Field label="Score reasoning">
+            <pre className="whitespace-pre-wrap break-words font-sans text-xs text-zinc-700 dark:text-zinc-300">
+              {job.score_reasoning}
+            </pre>
+          </Field>
+        )}
+      </div>
+      <div className="space-y-2">
+        <Field label="Application URL">
+          {job.application_url ? (
+            <a
+              href={job.application_url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-blue-600 hover:underline break-all"
+            >
+              {job.application_url}
+            </a>
+          ) : (
+            <span className="text-zinc-400">—</span>
+          )}
+        </Field>
+        <Field label="Tailored resume">
+          {job.tailored_resume_path ? (
+            <code className="break-all text-zinc-700 dark:text-zinc-300">
+              {job.tailored_resume_path}
+            </code>
+          ) : (
+            <span className="text-zinc-400">—</span>
+          )}
+        </Field>
+        <Field label="Cover letter">
+          {job.cover_letter_path ? (
+            <code className="break-all text-zinc-700 dark:text-zinc-300">
+              {job.cover_letter_path}
+            </code>
+          ) : (
+            <span className="text-zinc-400">—</span>
+          )}
+        </Field>
+        <Field label="Discovered at">{formatDate(job.discovered_at)}</Field>
+        <Field label="Detail scraped at">{formatDate(job.detail_scraped_at)}</Field>
+        <Field label="Tailored at">{formatDate(job.tailored_at)}</Field>
+        <Field label="Applied at">{formatDate(job.applied_at)}</Field>
+        <Field label="Last attempted at">{formatDate(job.last_attempted_at)}</Field>
+        {job.apply_error && (
+          <Field label="Apply error">
+            <span className="text-red-700 dark:text-red-400">{job.apply_error}</span>
+          </Field>
+        )}
+        <div className="flex gap-3 pt-1 text-zinc-500">
+          <span>tailor_attempts: {job.tailor_attempts ?? 0}</span>
+          <span>cover_attempts: {job.cover_attempts ?? 0}</span>
+          <span>apply_attempts: {job.apply_attempts ?? 0}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mb-0.5 text-[10px] uppercase tracking-wide text-zinc-500">
+        {label}
+      </div>
+      <div>{children}</div>
+    </div>
   );
 }

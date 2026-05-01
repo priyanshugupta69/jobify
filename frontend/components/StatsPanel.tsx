@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { getStats } from "@/lib/api";
 import type { StatsResponse } from "@/lib/types";
+import { useFilters } from "./FilterContext";
 
 const REFRESH_MS = 30_000;
 
@@ -22,6 +23,7 @@ export function StatsPanel() {
   const [stats, setStats] = useState<StatsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { site: activeSite, toggleSite } = useFilters();
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -106,16 +108,33 @@ export function StatsPanel() {
             <div>
               <h3 className="mb-2 text-sm font-medium text-zinc-600">
                 By site
+                <span className="ml-2 text-[10px] font-normal text-zinc-400">
+                  (click to filter the table below)
+                </span>
               </h3>
               <div className="flex flex-wrap gap-2 text-xs">
-                {stats.by_site.map(([site, count]) => (
-                  <span
-                    key={site}
-                    className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                  >
-                    {site}: <span className="font-medium">{count}</span>
-                  </span>
-                ))}
+                {stats.by_site.map(([site, count]) => {
+                  const isActive = activeSite?.toLowerCase() === site.toLowerCase();
+                  return (
+                    <button
+                      key={site}
+                      onClick={() => toggleSite(site)}
+                      className={
+                        "rounded-full px-2 py-0.5 transition-colors " +
+                        (isActive
+                          ? "bg-blue-600 text-white hover:bg-blue-700"
+                          : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700")
+                      }
+                      title={
+                        isActive
+                          ? `Clear filter (currently ${site})`
+                          : `Filter table by ${site}`
+                      }
+                    >
+                      {site}: <span className="font-medium">{count}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
