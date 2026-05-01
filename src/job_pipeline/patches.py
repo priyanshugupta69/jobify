@@ -47,6 +47,49 @@ def _patch_employers_loader() -> None:
     workday.load_employers = load_employers_user_first
 
 
+def _patch_sites_loader() -> None:
+    """applypilot.discovery.smartextract.load_sites() and config.load_sites_config()
+    both read CONFIG_DIR/sites.yaml (packaged), ignoring the user's customizations
+    in APP_DIR/sites.yaml. Swap both to prefer the user file with the package
+    default as fallback."""
+    from applypilot import config as ap_config
+    from applypilot.discovery import smartextract
+
+    def _load_sites_yaml() -> dict:
+        """Read sites.yaml — user file first, packaged default as fallback."""
+        user_path = ap_config.APP_DIR / "sites.yaml"
+        if user_path.exists():
+            try:
+                return yaml.safe_load(user_path.read_text(encoding="utf-8")) or {}
+            except Exception as e:
+                log.warning(
+                    "load_sites: user file %s unreadable (%s); "
+                    "falling back to package default",
+                    user_path, e,
+                )
+        pkg_path = ap_config.CONFIG_DIR / "sites.yaml"
+        if pkg_path.exists():
+            return yaml.safe_load(pkg_path.read_text(encoding="utf-8")) or {}
+        return {}
+
+    def load_sites_user_first() -> list[dict]:
+        data = _load_sites_yaml()
+        sites = data.get("sites", [])
+        log.info(
+            "load_sites: using %s (%d sites)",
+            ap_config.APP_DIR / "sites.yaml" if (ap_config.APP_DIR / "sites.yaml").exists()
+            else ap_config.CONFIG_DIR / "sites.yaml",
+            len(sites),
+        )
+        return sites
+
+    def load_sites_config_user_first() -> dict:
+        return _load_sites_yaml()
+
+    smartextract.load_sites = load_sites_user_first
+    ap_config.load_sites_config = load_sites_config_user_first
+
+
 def _patch_llm_to_vertex() -> None:
     """If VERTEX_* env vars are set, pre-set applypilot.llm._instance to a
     Vertex-backed client. Subsequent ``get_client()`` calls return it
@@ -87,6 +130,7 @@ def apply_patches() -> None:
     load_env()
 
     _patch_employers_loader()
+    _patch_sites_loader()
     _patch_llm_to_vertex()
 
     _PATCHED = True
