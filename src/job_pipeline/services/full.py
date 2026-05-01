@@ -46,7 +46,7 @@ def run_full() -> dict:
         results["cleanup"] = {"status": f"error: {e}"}
 
     try:
-        results["score"] = score.run(run_post_cleanup=True)
+        results["score"] = score.run(workers=score.DEFAULT_WORKERS, run_post_cleanup=True)
     except Exception as e:
         log.exception("score failed")
         results["score"] = {"status": f"error: {e}"}

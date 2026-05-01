@@ -32,44 +32,6 @@ SCHEDULES: list[Schedule] = [
         fn=None,
         timeout=10800,
     ),
-    # Batch-only runs at 9 AM, 12 PM, 3 PM, 6 PM, 9 PM IST.
-    # These don't run discover/score/tailor — they package and dispatch
-    # already-prepared jobs. Direct call is fine.
-    Schedule(
-        id="job-batch-9am-ist",
-        cron="30 3 * * *",
-        cmd=None,
-        fn="job_pipeline.services.batch:run",
-        timeout=None,
-    ),
-    Schedule(
-        id="job-batch-12pm-ist",
-        cron="30 6 * * *",
-        cmd=None,
-        fn="job_pipeline.services.batch:run",
-        timeout=None,
-    ),
-    Schedule(
-        id="job-batch-3pm-ist",
-        cron="30 9 * * *",
-        cmd=None,
-        fn="job_pipeline.services.batch:run",
-        timeout=None,
-    ),
-    Schedule(
-        id="job-batch-6pm-ist",
-        cron="30 12 * * *",
-        cmd=None,
-        fn="job_pipeline.services.batch:run",
-        timeout=None,
-    ),
-    Schedule(
-        id="job-batch-9pm-ist",
-        cron="30 15 * * *",
-        cmd=None,
-        fn="job_pipeline.services.batch:run",
-        timeout=None,
-    ),
     # 10 PM IST daily report.
     Schedule(
         id="job-daily-report",

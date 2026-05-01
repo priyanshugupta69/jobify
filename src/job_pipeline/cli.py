@@ -24,7 +24,8 @@ def _run_discover() -> None:
 
 def _run_score() -> None:
     from job_pipeline.services import score
-    score.run()
+    workers = int(sys.argv[2]) if len(sys.argv) >= 3 else score.DEFAULT_WORKERS
+    score.run(workers=workers)
 
 
 def _run_tailor() -> None:

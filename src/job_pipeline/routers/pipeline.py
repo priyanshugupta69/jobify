@@ -48,8 +48,8 @@ def trigger_discover(bg: BackgroundTasks, workers: int = 3) -> PipelineRunRespon
 
 
 @router.post("/score", response_model=PipelineRunResponse, status_code=202)
-def trigger_score(bg: BackgroundTasks) -> PipelineRunResponse:
-    bg.add_task(_wrap, "score", score.run)
+def trigger_score(bg: BackgroundTasks, workers: int = 8) -> PipelineRunResponse:
+    bg.add_task(_wrap, "score", score.run, workers=workers)
     return PipelineRunResponse(stage="score", detail="started in background")
 
 
