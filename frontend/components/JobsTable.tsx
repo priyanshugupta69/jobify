@@ -10,9 +10,12 @@ import {
   deleteSkipped,
   listJobs,
   markApplied,
+  tailoredResumeUrl,
+  triggerRunSelected,
   updateApplicationUrl,
 } from "@/lib/api";
 import { PIPELINE_STAGES, type Job, type PipelineStage } from "@/lib/types";
+import { ConfirmDialog, type PendingAction } from "./ConfirmDialog";
 import { useFilters } from "./FilterContext";
 import { useAction } from "./Toast";
 
@@ -50,6 +53,7 @@ export function JobsTable() {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [pending, setPending] = useState<PendingAction | null>(null);
   const { site, setSite } = useFilters();
   const run = useAction();
 
@@ -129,6 +133,27 @@ export function JobsTable() {
       return;
     await run(`Delete ${urls.length} selected`, () => bulkDeleteJobs(urls));
     refresh();
+  };
+
+  const onRunPipelineSelected = () => {
+    const urls = Array.from(selected);
+    if (urls.length === 0) return;
+    setPending({
+      title: `Run pipeline on ${urls.length} selected`,
+      description:
+        "Extracts apply URL → tailors resume + cover letter → auto-applies. " +
+        "Apply runs sequentially with 5–10 min spacing between submits. " +
+        "Selected jobs with fit_score < 8 will be skipped at the tailor step.",
+      warning:
+        "Hits LinkedIn, Gemini, and Anthropic. Will actually click Submit unless " +
+        "AUTO_APPLY_DRY_RUN=true (default). Auto-apply requires AUTO_APPLY_ENABLED=true; " +
+        "otherwise the apply phase falls back to marking jobs needs_manual.",
+      emphasis: "primary",
+      runLabel: `Run on ${urls.length}`,
+      onConfirm: async () => {
+        await run(`Run pipeline on ${urls.length}`, () => triggerRunSelected({ urls }));
+      },
+    });
   };
 
   const onApplyOne = async (url: string) => {
@@ -265,6 +290,13 @@ export function JobsTable() {
               Clear
             </button>
             <button
+              onClick={onRunPipelineSelected}
+              className="rounded border border-blue-600 bg-blue-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-blue-700"
+              title="Extract URLs → tailor resume/cover → auto-apply"
+            >
+              Run pipeline on {selected.size}
+            </button>
+            <button
               onClick={onDeleteSelected}
               className="rounded border border-red-300 bg-white px-2 py-0.5 text-xs font-medium text-red-700 hover:bg-red-50"
             >
@@ -304,7 +336,7 @@ export function JobsTable() {
                 <th className="px-3 py-2 font-medium">Salary</th>
                 <th className="px-3 py-2 font-medium">Score</th>
                 <th className="px-3 py-2 font-medium">Status</th>
-                <th className="px-3 py-2 font-medium" title="Tailored resume on disk">Resume</th>
+                <th className="px-3 py-2 font-medium" title="Open tailored resume PDF">Resume</th>
                 <th className="px-3 py-2 font-medium" title="External application URL extracted">App URL</th>
                 <th className="px-3 py-2 font-medium">Scored at</th>
                 <th className="px-3 py-2 font-medium"></th>
@@ -364,7 +396,21 @@ export function JobsTable() {
                       <td className="px-3 py-2 text-xs">
                         {j.apply_status ?? "—"}
                       </td>
-                      <td className="px-3 py-2 text-xs"><YesNo value={j.tailored_resume_path} /></td>
+                      <td className="px-3 py-2 text-xs">
+                        {j.tailored_resume_path ? (
+                          <a
+                            href={tailoredResumeUrl(j.url)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 hover:underline"
+                            title={j.tailored_resume_path}
+                          >
+                            View
+                          </a>
+                        ) : (
+                          <span className="text-zinc-400">—</span>
+                        )}
+                      </td>
                       <td className="px-3 py-2 text-xs"><YesNo value={j.application_url} /></td>
                       <td className="px-3 py-2 text-xs whitespace-nowrap">{formatDate(j.scored_at)}</td>
                       <td className="px-3 py-2">
@@ -410,6 +456,8 @@ export function JobsTable() {
           </table>
         </div>
       )}
+
+      <ConfirmDialog pending={pending} onClose={() => setPending(null)} />
     </section>
   );
 }
@@ -453,9 +501,14 @@ function JobDetails({ job }: { job: Job }) {
         </Field>
         <Field label="Tailored resume">
           {job.tailored_resume_path ? (
-            <code className="break-all text-zinc-700 dark:text-zinc-300">
+            <a
+              href={tailoredResumeUrl(job.url)}
+              target="_blank"
+              rel="noreferrer"
+              className="break-all text-blue-600 hover:underline"
+            >
               {job.tailored_resume_path}
-            </code>
+            </a>
           ) : (
             <span className="text-zinc-400">—</span>
           )}

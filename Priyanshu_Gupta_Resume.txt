@@ -1,0 +1,58 @@
+Priyanshu Gupta
+Software Engineer
+priyanshuraja456@gmail.com  |  +917590082188  |  https://www.linkedin.com/in/priyanshugupta546/
+
+SUMMARY
+Backend Software Engineer with experience building scalable microservices and AI-driven platforms. Expertise in Python, Node.js, React, AWS, and PostgreSQL/MongoDB, delivering high-performance APIs and robust CI/CD pipelines. Proven ability to integrate AI/ML capabilities and optimize system architecture for enterprise applications.
+
+TECHNICAL SKILLS
+Languages: Python, JavaScript, TypeScript, SQL
+Frameworks: FastAPI, Node.js, Express.js, React.js, Next.js, Django
+Databases: PostgreSQL, MongoDB, Redis, pgvector, Elasticsearch
+DevOps & Infra: AWS, Docker, Kubernetes, Terraform, GitHub Actions, CI/CD, Kafka
+AI/ML & Data: LLMs, Semantic Search, Embeddings, RAG, OpenAI API, Langchain
+Tools: Git, Playwright, Claude Code
+
+EXPERIENCE
+Software Engineer at Mercor
+Django · FastAPI · Next.js | 07/2024 - Present | Remote, San Francisco
+- Optimized candidate profile microservice with FastAPI and parallelism, reducing latency from 2s to 200ms (10x improvement).
+- Enhanced AI matching engine for 4M+ profiles using embedding strategies and targeted filters.
+- Developed end-to-end Work Trials platform, automating payments, expiration, and workflows to scale to 5,000 trials/week.
+- Migrated email service to Kafka-based async architecture, eliminating request blocking for 10,000 emails/request.
+
+Founding Engineer at Dugout
+Node.js · Express.js · React.js | 06/2023 - 06/2024 | Hybrid, Telangana
+- Designed and maintained Express.js backend serving 250+ daily active users across 200+ API endpoints.
+- Implemented Redis caching to optimize infrastructure, improving API response times by 200%.
+- Managed full AWS backend infrastructure, establishing production and development CI/CD pipelines via GitHub Actions.
+- Built user chat backend end-to-end in 2 weeks, boosting engagement 40% with new features like Highlights and Polls.
+
+Backend Developer (Part-time) at Pentadots
+Node.js · Express.js | 11/2023 - 06/2024 | Remote
+- Developed 100+ REST APIs for a real estate platform, including JWT authentication and email/phone verification services.
+
+Research Intern at IIT Jammu
+Python · Raspberry Pi · DSP | 05/2023 - 07/2023 | Jammu, India
+- Built piezoelectric sensor array data acquisition system; improved throughput 20% via multithreading on Raspberry Pi.
+
+PROJECTS
+ApplyPilot - End-to-End Autonomous Job Application Pipeline
+FastAPI · Next.js · Playwright · PostgreSQL · LLMs
+- Built end-to-end pipeline that discovers, scores, tailors, and auto-applies to 50+ jobs daily across LinkedIn/Indeed/Greenhouse.
+- LLM-driven fit scoring with per-JD resume/cover-letter tailoring; Playwright agents submit applications hands-free.
+- Scheduled concurrent workers with Telegram approval flow and Next.js dashboard for real-time review.
+
+Resumatch - AI-powered Resume-JD Matching Engine
+FastAPI · Next.js · Docker · pgvector · Claude API
+- Developed AI-powered resume-JD matching engine using semantic similarity (pgvector) and LLM cross-encoding reranking.
+- Implemented skill gap analysis pipeline classifying skills with confidence scoring and batch processing.
+- Integrated multi-strategy authentication (JWT, Google OAuth2) with user-scoped data isolation.
+
+Huego.ai - Medical RAG Chatbot
+AWS · FastAPI · TypeScript · Docker · Next.js
+- Deployed medical RAG chatbot over 1,000+ pages of literature on AWS with FastAPI backend and Next.js UI.
+- Containerized the application with Docker, streamlining deployment and development workflows.
+
+EDUCATION
+NIT Hamirpur, B.Tech ECE, CGPA 8.22, 2020-2024

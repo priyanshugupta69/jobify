@@ -43,12 +43,28 @@ class Settings(BaseSettings):
     scheduler_enabled: bool = Field(default=True, alias="SCHEDULER_ENABLED")
 
     # Auto-apply
-    # SAFETY DEFAULT: dry_run=True means Claude fills the form but does NOT click Submit.
+    # SAFETY DEFAULT: dry_run=True means the agent fills the form but does NOT click Submit.
     # Flip to false ONLY when you've verified the flow on a real job in dry-run first.
     auto_apply_enabled: bool = Field(default=False, alias="AUTO_APPLY_ENABLED")
     auto_apply_dry_run: bool = Field(default=True, alias="AUTO_APPLY_DRY_RUN")
     auto_apply_model: str = Field(default="sonnet", alias="AUTO_APPLY_MODEL")
     auto_apply_headless: bool = Field(default=True, alias="AUTO_APPLY_HEADLESS")
+
+    # Apply-agent runtime: which CLI drives the browser to actually submit.
+    # "claude" = applypilot.apply.launcher (Anthropic key required).
+    # "opencode" = job_pipeline.services.apply_opencode (Vertex SA required).
+    apply_agent: str = Field(default="opencode", alias="APPLY_AGENT")
+    apply_agent_model: str = Field(
+        default="google-vertex/gemini-3.1-pro-preview-customtools",
+        alias="APPLY_AGENT_MODEL",
+    )
+    # Vertex region for the apply agent specifically. Defaults to ``global``
+    # because Gemini 3.x preview models are only published at the global
+    # endpoint — regional endpoints (us-central1 etc.) return 404. Doesn't
+    # affect ``vertex_llm.py`` (scoring/tailor), which keeps using
+    # ``VERTEX_LOCATION``.
+    apply_agent_location: str = Field(default="global", alias="APPLY_AGENT_LOCATION")
+    apply_agent_path: str = Field(default="", alias="APPLY_AGENT_PATH")
     # Empty default — the actual binary is resolved at runtime by
     # ``resolve_chrome_path()`` so we don't pin a Playwright revision that
     # silently rots when the playwright pkg version bumps.

@@ -1,0 +1,266 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - img
+      - generic:
+        - generic:
+          - generic:
+            - generic: B
+            - generic:
+              - generic:
+                - heading [level=3]: BRAHMA AI
+                - heading [level=1]: Software Engineer
+              - generic:
+                - generic:
+                  - img
+                  - text: Full Time
+                - generic:
+                  - img
+                  - text: 1 - 6 years
+                - generic:
+                  - img
+                  - text: Bengaluru, Karnataka, India
+          - generic:
+            - generic: Node.js
+            - generic: React.js
+            - generic: JavaScript
+            - generic: Java
+            - generic: Next.js
+            - generic: Python (Programming Language)
+            - generic: Django
+            - generic: Flask
+            - generic: React Hooks
+            - generic: C#
+            - generic: Go (Programming Language)
+            - generic: Core Java
+            - generic: Django REST Framework
+            - generic: JavaScript Frameworks
+            - generic: Java Database Connectivity (JDBC)
+            - generic: FastAPI
+            - generic: ASP.NET Core
+            - generic: .NET Core
+            - generic: .NET Framework
+            - generic: Java Frameworks
+            - generic: ASP.NET MVC
+            - generic: JavaSE
+            - generic: JavaScript Object Model (JSOM)
+            - generic: Java Development
+            - generic: .NET in Azure
+            - generic: JavaScript eXtension (JSX)
+            - generic: Java Certified Programmer
+            - generic: JavaScript Libraries
+            - generic: Java Native Interface (JNI)
+            - generic: .NET APIs
+            - generic: Java Application Development
+            - generic: JavaMail
+            - generic: JavaScriptMVC
+            - generic: Java API
+            - generic: C# in .NET
+            - generic: Java RMI
+            - generic: .NET MAUI
+            - generic: .NET Architecture
+            - generic: Java AWT
+            - generic: Java Concurrency
+            - generic: JavaFX
+            - generic: JavaBeans
+            - generic: Java Enterprise Architecture
+            - generic: Java Applets
+            - generic: Java Object Oriented Querying (jOOQ)
+            - generic: Java3D
+            - generic: .NET CLR
+            - generic: .NET Compact Framework
+            - generic: Javadoc
+            - generic: .NET for Spark
+            - generic: .NET Community Toolkit
+            - generic: JavaCard
+            - generic: .NET Compiler Platform SDK
+            - generic: Java Naming and Directory Interface (JNDI)
+            - generic: .NET Data
+            - generic: Java Performance
+            - generic: JavaCC
+            - generic: Java2D
+          - generic:
+            - generic:
+              - heading [level=3]: Company Details
+              - generic:
+                - paragraph: Brahma delivers the “Media Business inside Every Business.” Born from the world’s most demanding industries—media, sports and entertainment—it merges 17 years of technology leadership with advanced agentic AI innovation. Evolving from the CLEAR® AI platform, Brahma is the category-defining creator platform for enterprise content, unifying creation, management and distribution into a single AI-powered supply chain. It enables organizations to meet skyrocketing content demand with speed, scale, security and ROI.
+                - paragraph: Inspired by its namesake creator in mythology, Brahma fuses Hollywood-grade technology with enterprise-scale AI innovation—turning raw data into dynamic video, audio and immersive content through purpose-built AI agents (e.g., Atman for digital humans, Vaani for multilingual lip-synced localization). It helps enterprises tell authentic, compliant, personalized and impactful stories globally.
+                - paragraph: Positioned at the center of a $400 billion shift toward audiovisual communication at scale, Brahma stands as a one-of-a-kind AI platform unifying content intelligence, creation and compliance. Backed by a global team and a growing portfolio of patents, it’s shaping the future of enterprise communication.
+            - generic:
+              - heading [level=3]: Job Roles & Responsibilities
+              - generic:
+                - list:
+                  - listitem:
+                    - paragraph:
+                      - text: Design and develop
+                      - strong: scalable software solutions
+                      - text: for the CLEAR media and AI platform.
+                  - listitem:
+                    - paragraph:
+                      - text: Build and maintain
+                      - strong: microservices
+                      - text: and
+                      - strong: micro frontends
+                      - text: using React and GoLang/Python/.NET./Java/Node.js
+                  - listitem:
+                    - paragraph:
+                      - text: Develop
+                      - strong: robust backend APIs and services
+                      - text: ensuring high availability and performance.
+                  - listitem:
+                    - paragraph:
+                      - text: Integrate
+                      - strong: AI-driven services
+                      - text: and automation features into the CLEAR platform.
+                  - listitem:
+                    - paragraph:
+                      - text: Work with
+                      - strong: PostgreSQL, SQL, and MongoDB
+                      - text: to ensure optimal database design and performance.
+                  - listitem:
+                    - paragraph:
+                      - text: Deploy and maintain applications on
+                      - strong: AWS and Azure
+                      - text: using modern DevOps practices.
+                  - listitem:
+                    - paragraph:
+                      - text: Implement and maintain
+                      - strong: CI/CD pipelines
+                      - text: (Jenkins, GitHub Actions, Azure DevOps).
+                  - listitem:
+                    - paragraph:
+                      - text: Participate in
+                      - strong: code reviews, architecture discussions, and platform modernization efforts.
+                  - listitem:
+                    - paragraph:
+                      - text: Collaborate in an
+                      - strong: agile environment
+                      - text: ", contributing to product scalability and performance improvements."
+            - generic:
+              - heading [level=3]: Ideal candidate profile
+              - generic:
+                - list:
+                  - listitem:
+                    - paragraph:
+                      - text: 2–7 years of hands-on experience in
+                      - strong: backend development
+                      - text: with GoLang, Python, .NET., Node.js,Java
+                  - listitem:
+                    - paragraph:
+                      - text: Expertise in
+                      - strong: React
+                      - text: ","
+                      - strong: microservices
+                      - text: ", and"
+                      - strong: cloud platforms (AWS/Azure)
+                      - text: .
+                  - listitem:
+                    - paragraph:
+                      - text: Strong foundation in
+                      - strong: SQL (PostgreSQL)
+                      - text: and
+                      - strong: NoSQL (MongoDB)
+                      - text: databases.
+                  - listitem:
+                    - paragraph:
+                      - text: Familiarity with
+                      - strong: Elasticsearch / OpenSearch
+                      - text: for search integration.
+                  - listitem:
+                    - paragraph:
+                      - text: Experience in
+                      - strong: media tech or AI-driven SaaS environments
+                      - text: preferred.
+        - generic:
+          - generic:
+            - generic:
+              - button:
+                - img
+                - text: Go back
+              - heading [level=1]: Fill details to apply
+              - generic:
+                - generic:
+                  - generic: Upload Resume ( PDF File upto 10MB )
+                  - generic:
+                    - button
+                - generic:
+                  - text: 1. What's your annual Salary?
+                  - generic:
+                    - generic:
+                      - generic: Currency
+                      - combobox:
+                        - generic: INR
+                        - img
+                      - combobox
+                    - generic:
+                      - generic: Current CTC Range
+                      - combobox:
+                        - generic: ₹10L - ₹30L
+                        - img
+                      - combobox
+                    - generic:
+                      - generic: Current CTC
+                      - generic:
+                        - generic: ₹
+                        - spinbutton: "25"
+                        - generic: LPA
+                  - paragraph: Your current annual salary is ₹25,00,000 (25 lakh rupees) rupees per year
+                - generic:
+                  - generic: 2. Notice Period
+                  - generic:
+                    - generic:
+                      - spinbutton [disabled]: "0"
+                      - generic: Days
+                  - generic:
+                    - checkbox [checked]:
+                      - generic:
+                        - img
+                    - checkbox [checked]
+                    - generic: Immediately available
+                - button: Proceed
+    - region "Notifications alt+T"
+  - dialog "Create Account" [ref=e272]:
+    - heading "Create Account" [level=2] [ref=e274]
+    - generic [ref=e275]:
+      - heading "Create account" [level=1] [ref=e276]
+      - generic [ref=e277]:
+        - button "microsoft" [active] [ref=e278] [cursor=pointer]:
+          - img "microsoft" [ref=e279]
+        - button "google" [ref=e280] [cursor=pointer]:
+          - img "google" [ref=e281]
+        - button "linkedin" [ref=e282] [cursor=pointer]:
+          - img "linkedin" [ref=e283]
+      - generic [ref=e286]: Or
+      - generic [ref=e288]:
+        - generic [ref=e289]:
+          - generic [ref=e290]:
+            - generic [ref=e291]: First Name
+            - textbox "First name" [ref=e293]
+          - generic [ref=e294]:
+            - generic [ref=e295]: Last Name
+            - textbox "Last name" [ref=e297]
+        - generic [ref=e298]:
+          - generic [ref=e299]: Email Address
+          - textbox "Enter your email" [ref=e301]
+        - generic [ref=e302]:
+          - generic [ref=e303]: Password
+          - generic [ref=e304]:
+            - textbox "Enter your password" [ref=e305]
+            - button [disabled] [ref=e307] [cursor=pointer]:
+              - img [ref=e308]
+              - generic [ref=e313]: Show password
+        - generic [ref=e314]:
+          - button "Apply now" [ref=e315] [cursor=pointer]
+          - paragraph [ref=e316]:
+            - text: By submitting, you acknowledge that you have read and agreed to our
+            - link "Terms of Service" [ref=e317] [cursor=pointer]:
+              - /url: https://flexiple.com/terms
+            - text: and
+            - link "Privacy Policy" [ref=e318] [cursor=pointer]:
+              - /url: https://flexiple.com/privacy
+            - text: .
+          - paragraph [ref=e319]:
+            - text: Already have an account?
+            - link "Login here" [ref=e320] [cursor=pointer]:
+              - /url: /login

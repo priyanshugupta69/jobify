@@ -53,6 +53,9 @@ export function listJobs({
 export const deleteJob = (url: string) =>
   request<DeleteResult>(`/jobs/${enc(url)}`, { method: "DELETE" });
 
+export const tailoredResumeUrl = (url: string) =>
+  `${BASE}/jobs/${enc(url)}/tailored-resume`;
+
 export const markApplied = (url: string) =>
   request<UpdateResult>(`/jobs/${enc(url)}/applied`, { method: "PATCH" });
 
@@ -133,6 +136,16 @@ export const triggerBatch = (opts: BatchOpts = {}) =>
 export const applyOne = (url: string) =>
   request<Record<string, unknown>>(`/pipeline/apply/${enc(url)}`, {
     method: "POST",
+  });
+
+export interface RunSelectedOpts {
+  urls: string[];
+  tailor_workers?: number;
+}
+export const triggerRunSelected = (opts: RunSelectedOpts) =>
+  request<PipelineRunResponse>(`/pipeline/run-selected`, {
+    method: "POST",
+    body: JSON.stringify(opts),
   });
 
 export const getDailyReport = () =>

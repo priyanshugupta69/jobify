@@ -21,6 +21,7 @@ from job_pipeline.services import (
     extract_urls,
     full,
     report,
+    run_selected,
     score,
     tailor,
 )
@@ -132,6 +133,32 @@ def trigger_apply_one(url: str) -> dict:
     except applier.MissingDependency as e:
         from fastapi import HTTPException
         raise HTTPException(status_code=503, detail=str(e))
+
+
+# ── Bulk: extract → tailor → auto-apply on a hand-picked URL list ────────────
+
+class RunSelectedRequest(BaseModel):
+    urls: list[str]
+    tailor_workers: int = 3
+
+
+@router.post("/run-selected", response_model=PipelineRunResponse, status_code=202)
+def trigger_run_selected(
+    bg: BackgroundTasks, body: RunSelectedRequest
+) -> PipelineRunResponse:
+    """Run extract_urls → tailor → applier.apply_one on the provided URLs."""
+    if not body.urls:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail="urls must be non-empty")
+    bg.add_task(
+        _wrap, "run_selected",
+        run_selected.run_selected,
+        urls=body.urls, tailor_workers=body.tailor_workers,
+    )
+    return PipelineRunResponse(
+        stage="run-selected",
+        detail=f"started for {len(body.urls)} jobs",
+    )
 
 
 # ── Report ───────────────────────────────────────────────────────────────────

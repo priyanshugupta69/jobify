@@ -1,0 +1,58 @@
+- generic [ref=e2]:
+  - generic [ref=e323]:
+    - generic [ref=e324]:
+      - img "logo" [ref=e325]
+      - generic [ref=e326]:
+        - heading "Finding dream developers for world-class teams" [level=1] [ref=e327]
+        - paragraph [ref=e328]: Flexiple is your 1-stop solution to hire dream developers for full-time or contract roles.
+      - generic [ref=e329]:
+        - paragraph [ref=e330]: Trusted by 100+ global brands
+        - generic [ref=e331]:
+          - img "airmeet" [ref=e332]
+          - img "plum" [ref=e333]
+          - img "dubit" [ref=e334]
+          - img "creditbook" [ref=e335]
+          - img "foldhealth" [ref=e336]
+          - img "prodigal" [ref=e337]
+          - img "freshtracks" [ref=e338]
+          - img "orby" [ref=e339]
+          - img "plivo" [ref=e340]
+          - img "swipepages" [ref=e341]
+    - generic [ref=e343]:
+      - heading "Welcome back" [level=2] [ref=e344]
+      - generic [ref=e345]:
+        - button "microsoft" [ref=e346] [cursor=pointer]:
+          - img "microsoft" [ref=e347]
+        - button "google" [ref=e348] [cursor=pointer]:
+          - img "google" [ref=e349]
+        - button "linkedin" [ref=e350] [cursor=pointer]:
+          - img "linkedin" [ref=e351]
+      - generic [ref=e354]: Or
+      - generic [ref=e356]:
+        - generic [ref=e357]:
+          - generic [ref=e358]: Email
+          - textbox "Email" [ref=e360]:
+            - /placeholder: Enter your email
+            - text: priyanshuraja456@gmail.com
+        - generic [ref=e361]:
+          - generic [ref=e362]: Password
+          - generic [ref=e363]:
+            - textbox "Password" [ref=e364]:
+              - /placeholder: Enter your password
+              - text: ApKing3AkhGNUx!1
+            - button [ref=e366] [cursor=pointer]:
+              - img [ref=e367]
+              - generic [ref=e372]: Show password
+        - generic [ref=e373]:
+          - button "Sign in" [ref=e374] [cursor=pointer]
+          - link "Forgot Password?" [ref=e375] [cursor=pointer]:
+            - /url: /client/forgot-password
+        - paragraph [ref=e376]:
+          - text: Don't have an account?
+          - link "Sign up" [ref=e377] [cursor=pointer]:
+            - /url: /signup
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e384]:
+        - img [ref=e386]
+        - generic [ref=e389]: Invalid email or password

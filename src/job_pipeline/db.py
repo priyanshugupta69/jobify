@@ -126,23 +126,37 @@ def mark_applied(conn: sqlite3.Connection, url: str) -> bool:
     return cur.rowcount > 0
 
 
-def block_other_tailoring(conn: sqlite3.Connection, allowed_urls: list[str]) -> int:
+def block_other_tailoring(
+    conn: sqlite3.Connection,
+    allowed_urls: list[str],
+    fit_score_floor: int = 8,
+) -> int:
     """Tailor-attempts=99 trick: blocks all jobs except `allowed_urls` from being
     picked by `applypilot run tailor`. Ports the workaround from
     scripts/daily_pipeline.py and scripts/prepare_batch.py.
+
+    Args:
+        allowed_urls: URLs to leave un-blocked.
+        fit_score_floor: Only block jobs at or above this score. Default 8
+            matches the standard pipeline (which calls applypilot with
+            min_score=8). Pass 0 when the caller plans to invoke applypilot
+            with a lower min_score (e.g. the bulk-action UI where the user
+            explicitly picked low-score rows) — otherwise non-selected
+            low-score rows would leak into the tailor stage.
     """
     if not allowed_urls:
         cur = conn.execute(
             "UPDATE jobs SET tailor_attempts = 99 "
-            "WHERE fit_score >= 8 AND tailored_resume_path IS NULL"
+            "WHERE fit_score >= ? AND tailored_resume_path IS NULL",
+            (fit_score_floor,),
         )
         return cur.rowcount
     placeholders = ",".join(["?"] * len(allowed_urls))
     cur = conn.execute(
         f"UPDATE jobs SET tailor_attempts = 99 "
-        f"WHERE fit_score >= 8 AND tailored_resume_path IS NULL "
+        f"WHERE fit_score >= ? AND tailored_resume_path IS NULL "
         f"AND url NOT IN ({placeholders})",
-        allowed_urls,
+        (fit_score_floor, *allowed_urls),
     )
     return cur.rowcount
 

@@ -1,0 +1,211 @@
+- generic [ref=e2]:
+  - generic [ref=e5]:
+    - img "Flexiple" [ref=e7]
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - generic [ref=e11]: B
+          - generic [ref=e12]:
+            - generic [ref=e13]:
+              - heading "BRAHMA AI" [level=3] [ref=e14]
+              - heading "Software Engineer" [level=1] [ref=e15]
+            - generic [ref=e16]:
+              - generic [ref=e17]:
+                - img [ref=e18]
+                - text: Full Time
+              - generic [ref=e21]:
+                - img [ref=e22]
+                - text: 1 - 6 years
+              - generic [ref=e24]:
+                - img [ref=e25]
+                - text: Bengaluru, Karnataka, India
+        - generic [ref=e28]:
+          - generic [ref=e29]: Node.js
+          - generic [ref=e30]: React.js
+          - generic [ref=e31]: JavaScript
+          - generic [ref=e32]: Java
+          - generic [ref=e33]: Next.js
+          - generic [ref=e34]: Python (Programming Language)
+          - generic [ref=e35]: Django
+          - generic [ref=e36]: Flask
+          - generic [ref=e37]: React Hooks
+          - generic [ref=e38]: C#
+          - generic [ref=e39]: Go (Programming Language)
+          - generic [ref=e40]: Core Java
+          - generic [ref=e41]: Django REST Framework
+          - generic [ref=e42]: JavaScript Frameworks
+          - generic [ref=e43]: Java Database Connectivity (JDBC)
+          - generic [ref=e44]: FastAPI
+          - generic [ref=e45]: ASP.NET Core
+          - generic [ref=e46]: .NET Core
+          - generic [ref=e47]: .NET Framework
+          - generic [ref=e48]: Java Frameworks
+          - generic [ref=e49]: ASP.NET MVC
+          - generic [ref=e50]: JavaSE
+          - generic [ref=e51]: JavaScript Object Model (JSOM)
+          - generic [ref=e52]: Java Development
+          - generic [ref=e53]: .NET in Azure
+          - generic [ref=e54]: JavaScript eXtension (JSX)
+          - generic [ref=e55]: Java Certified Programmer
+          - generic [ref=e56]: JavaScript Libraries
+          - generic [ref=e57]: Java Native Interface (JNI)
+          - generic [ref=e58]: .NET APIs
+          - generic [ref=e59]: Java Application Development
+          - generic [ref=e60]: JavaMail
+          - generic [ref=e61]: JavaScriptMVC
+          - generic [ref=e62]: Java API
+          - generic [ref=e63]: C# in .NET
+          - generic [ref=e64]: Java RMI
+          - generic [ref=e65]: .NET MAUI
+          - generic [ref=e66]: .NET Architecture
+          - generic [ref=e67]: Java AWT
+          - generic [ref=e68]: Java Concurrency
+          - generic [ref=e69]: JavaFX
+          - generic [ref=e70]: JavaBeans
+          - generic [ref=e71]: Java Enterprise Architecture
+          - generic [ref=e72]: Java Applets
+          - generic [ref=e73]: Java Object Oriented Querying (jOOQ)
+          - generic [ref=e74]: Java3D
+          - generic [ref=e75]: .NET CLR
+          - generic [ref=e76]: .NET Compact Framework
+          - generic [ref=e77]: Javadoc
+          - generic [ref=e78]: .NET for Spark
+          - generic [ref=e79]: .NET Community Toolkit
+          - generic [ref=e80]: JavaCard
+          - generic [ref=e81]: .NET Compiler Platform SDK
+          - generic [ref=e82]: Java Naming and Directory Interface (JNDI)
+          - generic [ref=e83]: .NET Data
+          - generic [ref=e84]: Java Performance
+          - generic [ref=e85]: JavaCC
+          - generic [ref=e86]: Java2D
+        - generic [ref=e87]:
+          - generic [ref=e88]:
+            - heading "Company Details" [level=3] [ref=e89]
+            - generic [ref=e90]:
+              - paragraph [ref=e91]: Brahma delivers the “Media Business inside Every Business.” Born from the world’s most demanding industries—media, sports and entertainment—it merges 17 years of technology leadership with advanced agentic AI innovation. Evolving from the CLEAR® AI platform, Brahma is the category-defining creator platform for enterprise content, unifying creation, management and distribution into a single AI-powered supply chain. It enables organizations to meet skyrocketing content demand with speed, scale, security and ROI.
+              - paragraph [ref=e92]: Inspired by its namesake creator in mythology, Brahma fuses Hollywood-grade technology with enterprise-scale AI innovation—turning raw data into dynamic video, audio and immersive content through purpose-built AI agents (e.g., Atman for digital humans, Vaani for multilingual lip-synced localization). It helps enterprises tell authentic, compliant, personalized and impactful stories globally.
+              - paragraph [ref=e93]: Positioned at the center of a $400 billion shift toward audiovisual communication at scale, Brahma stands as a one-of-a-kind AI platform unifying content intelligence, creation and compliance. Backed by a global team and a growing portfolio of patents, it’s shaping the future of enterprise communication.
+          - generic [ref=e94]:
+            - heading "Job Roles & Responsibilities" [level=3] [ref=e95]
+            - list [ref=e97]:
+              - listitem [ref=e98]:
+                - paragraph [ref=e99]:
+                  - text: Design and develop
+                  - strong [ref=e100]: scalable software solutions
+                  - text: for the CLEAR media and AI platform.
+              - listitem [ref=e101]:
+                - paragraph [ref=e102]:
+                  - text: Build and maintain
+                  - strong [ref=e103]: microservices
+                  - text: and
+                  - strong [ref=e104]: micro frontends
+                  - text: using React and GoLang/Python/.NET./Java/Node.js
+              - listitem [ref=e105]:
+                - paragraph [ref=e106]:
+                  - text: Develop
+                  - strong [ref=e107]: robust backend APIs and services
+                  - text: ensuring high availability and performance.
+              - listitem [ref=e108]:
+                - paragraph [ref=e109]:
+                  - text: Integrate
+                  - strong [ref=e110]: AI-driven services
+                  - text: and automation features into the CLEAR platform.
+              - listitem [ref=e111]:
+                - paragraph [ref=e112]:
+                  - text: Work with
+                  - strong [ref=e113]: PostgreSQL, SQL, and MongoDB
+                  - text: to ensure optimal database design and performance.
+              - listitem [ref=e114]:
+                - paragraph [ref=e115]:
+                  - text: Deploy and maintain applications on
+                  - strong [ref=e116]: AWS and Azure
+                  - text: using modern DevOps practices.
+              - listitem [ref=e117]:
+                - paragraph [ref=e118]:
+                  - text: Implement and maintain
+                  - strong [ref=e119]: CI/CD pipelines
+                  - text: (Jenkins, GitHub Actions, Azure DevOps).
+              - listitem [ref=e120]:
+                - paragraph [ref=e121]:
+                  - text: Participate in
+                  - strong [ref=e122]: code reviews, architecture discussions, and platform modernization efforts.
+              - listitem [ref=e123]:
+                - paragraph [ref=e124]:
+                  - text: Collaborate in an
+                  - strong [ref=e125]: agile environment
+                  - text: ", contributing to product scalability and performance improvements."
+          - generic [ref=e126]:
+            - heading "Ideal candidate profile" [level=3] [ref=e127]
+            - list [ref=e129]:
+              - listitem [ref=e130]:
+                - paragraph [ref=e131]:
+                  - text: 2–7 years of hands-on experience in
+                  - strong [ref=e132]: backend development
+                  - text: with GoLang, Python, .NET., Node.js,Java
+              - listitem [ref=e133]:
+                - paragraph [ref=e134]:
+                  - text: Expertise in
+                  - strong [ref=e135]: React
+                  - text: ","
+                  - strong [ref=e136]: microservices
+                  - text: ", and"
+                  - strong [ref=e137]: cloud platforms (AWS/Azure)
+                  - text: .
+              - listitem [ref=e138]:
+                - paragraph [ref=e139]:
+                  - text: Strong foundation in
+                  - strong [ref=e140]: SQL (PostgreSQL)
+                  - text: and
+                  - strong [ref=e141]: NoSQL (MongoDB)
+                  - text: databases.
+              - listitem [ref=e142]:
+                - paragraph [ref=e143]:
+                  - text: Familiarity with
+                  - strong [ref=e144]: Elasticsearch / OpenSearch
+                  - text: for search integration.
+              - listitem [ref=e145]:
+                - paragraph [ref=e146]:
+                  - text: Experience in
+                  - strong [ref=e147]: media tech or AI-driven SaaS environments
+                  - text: preferred.
+      - generic [ref=e211]:
+        - button "Go back" [ref=e212] [cursor=pointer]:
+          - img [ref=e213]
+          - text: Go back
+        - heading "Fill details to apply" [level=1] [ref=e215]
+        - generic [ref=e216]:
+          - generic [ref=e217]:
+            - generic [ref=e218]: Upload Resume ( PDF File upto 10MB )
+            - button "Choose File" [ref=e220]
+          - generic [ref=e221]:
+            - text: 1. What's your annual Salary?
+            - generic [ref=e222]:
+              - generic [ref=e223]:
+                - generic [ref=e224]: Currency
+                - combobox [ref=e225] [cursor=pointer]:
+                  - generic: INR
+                  - img [ref=e226]
+                - combobox [ref=e228]
+              - generic [ref=e229]:
+                - generic [ref=e230]: Current CTC Range
+                - combobox [active] [ref=e231] [cursor=pointer]:
+                  - generic: ₹10L - ₹30L
+                  - img [ref=e232]
+                - combobox [ref=e234]
+              - generic [ref=e235]:
+                - generic [ref=e236]: Current CTC
+                - generic [ref=e237]:
+                  - generic [ref=e238]: ₹
+                  - spinbutton [ref=e239]: "0"
+                  - generic [ref=e240]: LPA
+          - generic [ref=e241]:
+            - generic [ref=e242]: 2. Notice Period
+            - generic [ref=e244]:
+              - spinbutton "2. Notice Period" [ref=e245]: "0"
+              - generic [ref=e246]: Days
+            - generic [ref=e247]:
+              - checkbox "Immediately available" [ref=e248] [cursor=pointer]
+              - checkbox
+              - generic [ref=e249]: Immediately available
+          - button "Proceed" [ref=e250] [cursor=pointer]
+  - region "Notifications alt+T"

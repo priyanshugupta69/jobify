@@ -2,10 +2,13 @@
 from __future__ import annotations
 
 import sqlite3
+from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import FileResponse
 
+from job_pipeline.settings import settings
 from job_pipeline.db import (
     delete_by_url,
     delete_low_score,
@@ -76,6 +79,46 @@ def bulk_delete(
         if delete_by_url(conn, url):
             deleted += 1
     return DeleteResult(deleted=deleted)
+
+
+@router.get("/{url:path}/tailored-resume")
+def get_tailored_resume(
+    url: str,
+    conn: Annotated[sqlite3.Connection, Depends(get_db)],
+) -> FileResponse:
+    job = get_job_by_url(conn, url)
+    if job is None:
+        raise HTTPException(status_code=404, detail=f"job not found: {url}")
+    stored = job.get("tailored_resume_path")
+    if not stored:
+        raise HTTPException(status_code=404, detail="no tailored resume for this job")
+
+    tailored_dir = (settings.applypilot_dir / "tailored_resumes").resolve()
+    # Stored path is the .txt source — the rendered .pdf sits next to it.
+    # Fall back to the stored file itself if the PDF is missing.
+    candidates = [Path(stored).with_suffix(".pdf"), Path(stored)]
+    chosen: Path | None = None
+    for c in candidates:
+        try:
+            resolved = c.resolve()
+            resolved.relative_to(tailored_dir)
+        except (ValueError, OSError):
+            continue
+        if resolved.is_file():
+            chosen = resolved
+            break
+    if chosen is None:
+        raise HTTPException(status_code=404, detail="resume file not found on disk")
+
+    media_type = "application/pdf" if chosen.suffix == ".pdf" else "text/plain"
+    # ``inline`` so the browser renders the PDF / text in the new tab
+    # opened by the table's "View" link, instead of silently downloading it.
+    return FileResponse(
+        chosen,
+        media_type=media_type,
+        filename=chosen.name,
+        content_disposition_type="inline",
+    )
 
 
 @router.get("/{url:path}", response_model=Job)

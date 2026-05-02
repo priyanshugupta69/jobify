@@ -23,9 +23,12 @@ def _set_settings(monkeypatch, **kwargs):
 
 
 def test_disabled_by_default(monkeypatch):
-    """With no env vars, AUTO_APPLY_ENABLED is false → AutoApplyDisabled."""
-    monkeypatch.delenv("AUTO_APPLY_ENABLED", raising=False)
-    _set_settings(monkeypatch)
+    """With AUTO_APPLY_ENABLED=false, apply_one raises AutoApplyDisabled.
+
+    Use setenv (not delenv) because pydantic also reads from ~/.applypilot/.env;
+    delenv alone lets a local dotfile re-enable it and break the test.
+    """
+    _set_settings(monkeypatch, AUTO_APPLY_ENABLED="false")
     with pytest.raises(applier_mod.AutoApplyDisabled):
         applier_mod.apply_one("https://anything")
 
