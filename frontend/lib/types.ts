@@ -46,6 +46,7 @@ export interface Job {
   tailor_attempts?: number | null;
   cover_attempts?: number | null;
   apply_attempts?: number | null;
+  viewed_at?: string | null;
   [key: string]: unknown;
 }
 

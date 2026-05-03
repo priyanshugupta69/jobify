@@ -10,9 +10,12 @@ import {
   deleteSkipped,
   listJobs,
   markApplied,
+  markViewed,
   tailoredResumeUrl,
   triggerRunSelected,
   updateApplicationUrl,
+  type SortKey,
+  type ViewedFilter,
 } from "@/lib/api";
 import { PIPELINE_STAGES, type Job, type PipelineStage } from "@/lib/types";
 import { ConfirmDialog, type PendingAction } from "./ConfirmDialog";
@@ -54,6 +57,11 @@ export function JobsTable() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [pending, setPending] = useState<PendingAction | null>(null);
+  const [viewedFilter, setViewedFilter] = useState<ViewedFilter>("all");
+  const [sort, setSort] = useState<SortKey>("score");
+  // Track URLs marked viewed *this session* so the row visual updates
+  // immediately without waiting for a refresh round-trip.
+  const [recentlyViewed, setRecentlyViewed] = useState<Set<string>>(new Set());
   const { site, setSite } = useFilters();
   const run = useAction();
 
@@ -67,7 +75,7 @@ export function JobsTable() {
       const ms = debouncedMinScore ? Number(debouncedMinScore) : null;
       const lim = debouncedLimit ? Number(debouncedLimit) : 100;
       setJobs(
-        await listJobs({ stage, minScore: ms, limit: lim, site }),
+        await listJobs({ stage, minScore: ms, limit: lim, site, viewed: viewedFilter, sort }),
       );
       setError(null);
     } catch (e) {
@@ -75,7 +83,7 @@ export function JobsTable() {
     } finally {
       setLoading(false);
     }
-  }, [stage, debouncedMinScore, debouncedLimit, site]);
+  }, [stage, debouncedMinScore, debouncedLimit, site, viewedFilter, sort]);
 
   useEffect(() => {
     refresh();
@@ -161,6 +169,19 @@ export function JobsTable() {
     refresh();
   };
 
+  const onJobLinkClick = (url: string) => {
+    // Optimistically mark as viewed so the row visual updates immediately;
+    // fire-and-forget the API call so we don't delay the user opening the
+    // tab. Errors are swallowed — worst case the row syncs on next refresh.
+    setRecentlyViewed((prev) => {
+      if (prev.has(url)) return prev;
+      const next = new Set(prev);
+      next.add(url);
+      return next;
+    });
+    markViewed(url).catch(() => { /* tolerate transient API failures */ });
+  };
+
   const onEditAppUrl = async (job: Job) => {
     const next = prompt(
       "Application URL (empty to clear):",
@@ -236,6 +257,36 @@ export function JobsTable() {
             onChange={(e) => setLimit(e.target.value)}
             className="w-24 rounded border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900"
           />
+        </label>
+        <label className="flex flex-col">
+          <span className="text-xs text-zinc-500">Viewed</span>
+          <select
+            value={viewedFilter}
+            onChange={(e) => setViewedFilter(e.target.value as ViewedFilter)}
+            className="rounded border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900"
+            title="Filter by whether you've opened the job link from the dashboard"
+          >
+            <option value="all">all</option>
+            <option value="unviewed">unviewed</option>
+            <option value="viewed">viewed</option>
+          </select>
+        </label>
+        <label className="flex flex-col">
+          <span className="text-xs text-zinc-500">Sort</span>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortKey)}
+            className="rounded border border-zinc-300 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-900"
+            title="Sort order for the results"
+          >
+            <option value="score">score (default)</option>
+            <option value="newest">newest discovered</option>
+            <option value="oldest">oldest discovered</option>
+            <option value="recently_scored">recently scored</option>
+            <option value="recently_tailored">recently tailored</option>
+            <option value="recently_viewed">recently viewed</option>
+            <option value="recently_applied">recently applied</option>
+          </select>
         </label>
         {site && (
           <div className="flex flex-col">
@@ -345,9 +396,14 @@ export function JobsTable() {
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {jobs.map((j) => {
                 const isExpanded = expanded.has(j.url);
+                const isViewed = !!j.viewed_at || recentlyViewed.has(j.url);
                 return (
                   <Fragment key={j.url}>
-                    <tr className="align-top">
+                    <tr
+                      className={
+                        "align-top" + (isViewed ? " text-zinc-500 dark:text-zinc-500" : "")
+                      }
+                    >
                       <td className="px-3 py-2">
                         <input
                           type="checkbox"
@@ -370,7 +426,17 @@ export function JobsTable() {
                           href={j.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-blue-600 hover:underline break-words"
+                          onClick={() => onJobLinkClick(j.url)}
+                          onAuxClick={(e) => {
+                            // middle-click also opens the link in a new tab
+                            if (e.button === 1) onJobLinkClick(j.url);
+                          }}
+                          className={
+                            "hover:underline break-words " +
+                            (isViewed
+                              ? "text-blue-500/70 visited:text-purple-500/70"
+                              : "text-blue-600")
+                          }
                         >
                           {j.title ?? j.url}
                         </a>

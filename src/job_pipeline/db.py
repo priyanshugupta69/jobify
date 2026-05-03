@@ -36,6 +36,8 @@ __all__ = [
     "update_tailored_resume",
     "mark_needs_manual",
     "mark_applied",
+    "mark_viewed",
+    "ensure_viewed_at_column",
     "block_other_tailoring",
     "unblock_tailoring",
     "delete_low_score",
@@ -109,6 +111,31 @@ def mark_needs_manual(conn: sqlite3.Connection, url: str, error: str) -> bool:
          WHERE url = ?
         """,
         (error, datetime.now(timezone.utc).isoformat(), url),
+    )
+    return cur.rowcount > 0
+
+
+def ensure_viewed_at_column(conn: sqlite3.Connection) -> bool:
+    """Idempotent migration: add ``viewed_at`` to ``jobs`` if it doesn't exist.
+
+    Owned by this repo (not applypilot). Records when the user opened a job
+    posting from the dashboard so we can offer an "unviewed only" filter.
+    """
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(jobs)").fetchall()}
+    if "viewed_at" in cols:
+        return False
+    conn.execute("ALTER TABLE jobs ADD COLUMN viewed_at TEXT")
+    conn.commit()
+    log.info("DB migration: added viewed_at column to jobs")
+    return True
+
+
+def mark_viewed(conn: sqlite3.Connection, url: str) -> bool:
+    """Stamp ``viewed_at`` to now if the row exists. Idempotent at call site —
+    we re-stamp on every dashboard click; whoever last opened the job wins."""
+    cur = conn.execute(
+        "UPDATE jobs SET viewed_at = ? WHERE url = ?",
+        (datetime.now(timezone.utc).isoformat(), url),
     )
     return cur.rowcount > 0
 

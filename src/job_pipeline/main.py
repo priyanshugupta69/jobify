@@ -20,6 +20,15 @@ async def lifespan(app: FastAPI):
     apply_patches()
     log.info("Starting job-pipeline app")
 
+    # One-shot DB migration: ensure ``viewed_at`` exists. Owned by this repo,
+    # not applypilot, so we run it ourselves at startup.
+    from job_pipeline.db import ensure_viewed_at_column, get_connection
+    try:
+        _conn = get_connection()
+        ensure_viewed_at_column(_conn)
+    except Exception:
+        log.exception("ensure_viewed_at_column failed at startup")
+
     # Boot-time Chrome self-check — surfaces missing binary at startup
     # instead of mid-cron-run. Run in a thread because resolve_chrome_path
     # uses sync_playwright(), which can't share an event loop with us.

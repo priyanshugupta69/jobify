@@ -47,6 +47,7 @@ class Job(BaseModel):
     tailor_attempts: int | None = None
     cover_attempts: int | None = None
     apply_attempts: int | None = None
+    viewed_at: str | None = None
 
     model_config = {"extra": "allow"}
 

@@ -32,23 +32,43 @@ const enc = (url: string) => encodeURI(url);
 
 export const getStats = () => request<StatsResponse>("/stats");
 
+export type ViewedFilter = "all" | "viewed" | "unviewed";
+
+export type SortKey =
+  | "score"
+  | "newest"
+  | "oldest"
+  | "recently_scored"
+  | "recently_tailored"
+  | "recently_viewed"
+  | "recently_applied";
+
 export interface ListJobsParams {
   stage: PipelineStage;
   minScore?: number | null;
   limit?: number;
   site?: string | null;
+  viewed?: ViewedFilter;
+  sort?: SortKey;
 }
 export function listJobs({
   stage,
   minScore,
   limit = 100,
   site,
+  viewed,
+  sort,
 }: ListJobsParams): Promise<Job[]> {
   const qs = new URLSearchParams({ stage, limit: String(limit) });
   if (minScore != null) qs.set("min_score", String(minScore));
   if (site) qs.set("site", site);
+  if (viewed && viewed !== "all") qs.set("viewed", viewed);
+  if (sort && sort !== "score") qs.set("sort", sort);
   return request<Job[]>(`/jobs?${qs.toString()}`);
 }
+
+export const markViewed = (url: string) =>
+  request<UpdateResult>(`/jobs/${enc(url)}/viewed`, { method: "POST" });
 
 export const deleteJob = (url: string) =>
   request<DeleteResult>(`/jobs/${enc(url)}`, { method: "DELETE" });

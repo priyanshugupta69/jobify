@@ -18,6 +18,7 @@ from job_pipeline.db import (
     get_jobs_by_stage,
     mark_applied,
     mark_needs_manual,
+    mark_viewed,
     update_application_url,
     update_tailored_resume,
 )
@@ -35,6 +36,37 @@ from job_pipeline.models import (
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 
+_SORT_KEYS: dict[str, tuple[str, bool]] = {
+    # name -> (column, reverse_for_desc)
+    # ``score``: applypilot's default (fit_score desc, discovered_at desc).
+    # Others sort purely by the named timestamp, descending = "most recent first".
+    "score": ("", True),  # special-cased: keep applypilot's order
+    "newest": ("discovered_at", True),
+    "oldest": ("discovered_at", False),
+    "recently_scored": ("scored_at", True),
+    "recently_tailored": ("tailored_at", True),
+    "recently_viewed": ("viewed_at", True),
+    "recently_applied": ("applied_at", True),
+}
+
+
+def _apply_sort(rows: list[dict], sort: str) -> list[dict]:
+    """Stable sort over post-filter rows. Falls through to applypilot's
+    score-default when ``sort='score'`` (the helper's own ORDER BY)."""
+    if sort == "score" or sort not in _SORT_KEYS:
+        return rows
+    column, descending = _SORT_KEYS[sort]
+    # Place rows missing the column at the end regardless of direction.
+    def _key(r: dict) -> tuple[int, str]:
+        v = r.get(column) or ""
+        return (0 if v else 1, v)
+    rows.sort(key=_key, reverse=descending)
+    # The "missing -> end" sentinel inverts under reverse=True; flip it back.
+    if descending:
+        rows.sort(key=lambda r: 0 if r.get(column) else 1)
+    return rows
+
+
 @router.get("", response_model=list[Job])
 def list_jobs(
     conn: Annotated[sqlite3.Connection, Depends(get_db)],
@@ -42,16 +74,38 @@ def list_jobs(
     min_score: int | None = Query(None, ge=1, le=10),
     limit: int = Query(100, ge=1, le=1000),
     site: str | None = Query(None),
+    viewed: str | None = Query(None, pattern="^(all|viewed|unviewed)$"),
+    sort: str = Query("score", pattern="^(score|newest|oldest|recently_scored|recently_tailored|recently_viewed|recently_applied)$"),
 ) -> list[dict]:
-    if site is None:
+    """List jobs filtered by stage / min_score / site / viewed, with optional sort.
+
+    ``viewed``: ``unviewed`` → only rows with viewed_at IS NULL,
+                ``viewed``   → only rows with viewed_at IS NOT NULL,
+                ``all``/None → no filter.
+
+    ``sort``: ``score`` (default — applypilot's fit_score desc, then discovered_at desc),
+              ``newest`` / ``oldest`` (by discovered_at),
+              ``recently_scored`` / ``recently_tailored`` / ``recently_viewed`` /
+              ``recently_applied`` (by the corresponding _at column, desc).
+    """
+    needs_post_filter = (
+        site is not None or (viewed in {"viewed", "unviewed"}) or sort != "score"
+    )
+    if not needs_post_filter:
         return get_jobs_by_stage(conn, stage=stage, min_score=min_score, limit=limit)
 
-    # Pull a generous superset, filter client-side, then truncate. Keeps the
-    # applypilot helper as the single source of truth for stage semantics.
+    # Pull a generous superset, filter + sort client-side, then truncate.
+    # Keeps the applypilot helper as the single source of truth for stage semantics.
     rows = get_jobs_by_stage(conn, stage=stage, min_score=min_score, limit=0)
-    site_l = site.lower()
-    filtered = [r for r in rows if (r.get("site") or "").lower() == site_l]
-    return filtered[:limit]
+    if site is not None:
+        site_l = site.lower()
+        rows = [r for r in rows if (r.get("site") or "").lower() == site_l]
+    if viewed == "unviewed":
+        rows = [r for r in rows if not r.get("viewed_at")]
+    elif viewed == "viewed":
+        rows = [r for r in rows if r.get("viewed_at")]
+    rows = _apply_sort(rows, sort)
+    return rows[:limit]
 
 
 @router.delete("/low-score", response_model=DeleteResult)
@@ -79,6 +133,16 @@ def bulk_delete(
         if delete_by_url(conn, url):
             deleted += 1
     return DeleteResult(deleted=deleted)
+
+
+@router.post("/{url:path}/viewed", response_model=UpdateResult)
+def mark_viewed_endpoint(
+    url: str,
+    conn: Annotated[sqlite3.Connection, Depends(get_db)],
+) -> UpdateResult:
+    """Stamp ``viewed_at = now()`` for this job. Fires when the user clicks
+    the title link on the dashboard."""
+    return UpdateResult(updated=mark_viewed(conn, url))
 
 
 @router.get("/{url:path}/tailored-resume")
